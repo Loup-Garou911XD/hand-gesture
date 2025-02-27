@@ -28,9 +28,9 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         continue
-
+    flipped_frame = cv2.flip(frame,1)
     # Convert the BGR image to RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    rgb_frame = cv2.cvtColor(flipped_frame, cv2.COLOR_BGR2RGB)
 
     # Process the frame and detect hands
     results = hands.process(rgb_frame)
@@ -38,13 +38,13 @@ while cap.isOpened():
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             # Draw hand landmarks
-            mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+            mp_drawing.draw_landmarks(flipped_frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
             # Get hand gesture
             gesture = get_gesture(hand_landmarks)
-            cv2.putText(frame, f"Gesture: {gesture}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(flipped_frame, f"Gesture: {gesture}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    cv2.imshow('Hand Gesture Detection', frame)
+    cv2.imshow('Hand Gesture Detection', flipped_frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
