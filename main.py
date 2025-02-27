@@ -11,8 +11,6 @@ mp_drawing = mp.solutions.drawing_utils
 # Initialize webcam
 cap = cv2.VideoCapture(0)
 def get_gesture(landmarks):
-    # Implement your gesture recognition logic here
-    # This is a simple example - you can expand on this
     thumb_tip = landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
     index_tip = landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
     middle_tip = landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
