@@ -1,5 +1,5 @@
 #! /usr/bin/env python3.11
-import cv2
+import cv2 as cv
 import mediapipe as mp
 import numpy as np
 
@@ -9,15 +9,17 @@ hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_c
 mp_drawing = mp.solutions.drawing_utils
 
 # Initialize webcam
-cap = cv2.VideoCapture(0)
+cap = cv.VideoCapture(0)
 def get_gesture(landmarks):
     thumb_tip = landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
     index_tip = landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
     middle_tip = landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
+    ring_tip = landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y
+    pinky_tip = landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y
 
-    if thumb_tip < index_tip and thumb_tip < middle_tip:
+    if thumb_tip < min(index_tip,middle_tip,ring_tip,pinky_tip):
         return "Thumbs Up"
-    elif index_tip < thumb_tip and middle_tip < thumb_tip:
+    elif index_tip < min(thumb_tip, ring_tip, pinky_tip) and middle_tip < min(thumb_tip, ring_tip, pinky_tip):
         return "Peace"
     else:
         return "Unknown"
@@ -26,9 +28,9 @@ while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         continue
-    flipped_frame = cv2.flip(frame,1)
+    flipped_frame = cv.flip(frame,1)
     # Convert the BGR image to RGB
-    rgb_frame = cv2.cvtColor(flipped_frame, cv2.COLOR_BGR2RGB)
+    rgb_frame = cv.cvtColor(flipped_frame, cv.COLOR_BGR2RGB)
 
     # Process the frame and detect hands
     results = hands.process(rgb_frame)
@@ -40,12 +42,18 @@ while cap.isOpened():
 
             # Get hand gesture
             gesture = get_gesture(hand_landmarks)
-            cv2.putText(flipped_frame, f"Gesture: {gesture}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv.putText(flipped_frame, f"Gesture: {gesture}", (10, 50), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            
+            height, width, _ = flipped_frame.shape
+            index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP]
+            index_finger_tip_x = int(index_finger_tip.x * width)
+            index_finger_tip_y = int(index_finger_tip.y * height)
+            cv.circle(flipped_frame, (index_finger_tip_x, index_finger_tip_y), 5, (100, 255, 100), -1)
+    
+    cv.imshow('Hand Gesture Detection', flipped_frame)
 
-    cv2.imshow('Hand Gesture Detection', flipped_frame)
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
 cap.release()
-cv2.destroyAllWindows()
+cv.destroyAllWindows()
