@@ -12,10 +12,33 @@ mp_drawing = mp.solutions.drawing_utils
 cap = cv.VideoCapture(0)
 def get_gesture(landmarks):
     thumb_tip = landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
+    thumb_ip = landmarks.landmark[mp_hands.HandLandmark.THUMB_IP].y
     index_tip = landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
+    index_pip = landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_PIP].y
     middle_tip = landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
+    middle_pip = landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].y
     ring_tip = landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_TIP].y
+    ring_pip = landmarks.landmark[mp_hands.HandLandmark.RING_FINGER_PIP].y
     pinky_tip = landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y
+    pinky_pip = landmarks.landmark[mp_hands.HandLandmark.PINKY_PIP].y
+
+    # Check for ASL 'A' (Thumb extended, other fingers bent)
+    thumb_extended = thumb_tip < thumb_ip
+    fingers_bent = (index_tip > index_pip and 
+                    middle_tip > middle_pip and 
+                    ring_tip > ring_pip and 
+                    pinky_tip > pinky_pip)
+    if thumb_extended and fingers_bent:
+        return "A"
+    
+    # Check for ASL 'B' (Four fingers extended, thumb bent)
+    fingers_extended = (index_tip < index_pip and 
+                        middle_tip < middle_pip and 
+                        ring_tip < ring_pip and 
+                        pinky_tip < pinky_pip)
+    thumb_bent = thumb_tip > thumb_ip
+    if fingers_extended and thumb_bent:
+        return "B"
 
     if thumb_tip < min(index_tip,middle_tip,ring_tip,pinky_tip):
         return "Thumbs Up"
