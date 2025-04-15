@@ -8,6 +8,7 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
 mp_drawing = mp.solutions.drawing_utils
 
+
 # Initialize webcam
 cap = cv.VideoCapture(0)
 def get_gesture(landmarks):
